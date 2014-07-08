@@ -1,0 +1,8 @@
+"main.obj",
+"rey_config.obj",
+"delay.obj",
+"LCD1602B.obj",
+"USART.obj",
+"timer.obj" 
+TO "Wifi_Flow" 
+RAMSIZE(256) 

@@ -1,0 +1,248 @@
+C51 COMPILER V9.52.0.0   LCD1602B                                                          07/08/2014 16:46:13 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE LCD1602B
+OBJECT MODULE PLACED IN LCD1602B.obj
+COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.EXE lib\LCD1602B.c BROWSE INCDIR(.\lib;.\src) DEBUG OBJECTEXTEND PRINT(.\LCD
+                    -1602B.lst) TABS(2) OBJECT(LCD1602B.obj)
+
+line level    source
+
+   1          
+   2          /*---------------------------------------------------------------------*/
+   3          /* --- STC MCU International Limited ----------------------------------*/
+   4          /* --- STC 1T Series MCU Demo Programme -------------------------------*/
+   5          /* --- Mobile: (86)13922805190 ----------------------------------------*/
+   6          /* --- Fax: 86-0513-55012956,55012947,55012969 ------------------------*/
+   7          /* --- Tel: 86-0513-55012928,55012929,55012966 ------------------------*/
+   8          /* --- Web: www.GXWMCU.com --------------------------------------------*/
+   9          /* --- QQ:  800003751 -------------------------------------------------*/
+  10          /* 如果要在程序中使用此代码,请在程序中注明使用了宏晶科技的资料及程序   */
+  11          /*---------------------------------------------------------------------*/
+  12          
+  13          //编写: STC梁工
+  14          
+  15          //8位数据访问方式 LCD1602   标准程序  梁工编写  2002-12-21
+  16          
+  17          #include  "config.h"
+  18          #include  "delay.h"
+  19          
+  20          #define LineLenth 16    //16x2
+  21          //#define LineLenth 20    //20x2
+  22          //#define LineLenth 40    //40x2
+  23          
+  24          //this programme is used for LCD module 16x2 20x2 or 40x2.
+  25          
+  26          /*************  Pin define  *****************************************************/
+  27          
+  28          sfr   LCD_BUS = 0xA0; //P0--0x80, P1--0x90, P2--0xA0, P3--0xB0
+  29          
+  30          sbit  LCD_B7  = LCD_BUS^7;  //D7 -- Pin 14    LED- -- Pin 16 
+  31          sbit  LCD_B6  = LCD_BUS^6;  //D6 -- Pin 13    LED+ -- Pin 15
+  32          sbit  LCD_B5  = LCD_BUS^5;  //D5 -- Pin 12    Vo   -- Pin 3
+  33          sbit  LCD_B4  = LCD_BUS^4;  //D4 -- Pin 11    VDD  -- Pin 2
+  34          sbit  LCD_B3  = LCD_BUS^3;  //D3 -- Pin 10    VSS  -- Pin 1
+  35          sbit  LCD_B2  = LCD_BUS^2;  //D2 -- Pin  9
+  36          sbit  LCD_B1  = LCD_BUS^1;  //D1 -- Pin  8
+  37          sbit  LCD_B0  = LCD_BUS^0;  //D0 -- Pin  7
+  38          
+  39          sbit  LCD_ENA = P1^0; //Pin 6
+  40          sbit  LCD_RW  = P1^1; //Pin 5 //LCD_RS   R/W   DB7--DB0        FOUNCTION
+  41          sbit  LCD_RS  = P1^2; //Pin 4 //  0   0   INPUT      write the command to LCD model
+  42                          //  0   1     OUTPUT     read BF and AC pointer from LCD model
+  43                          //  1   0     INPUT      write the data to LCD  model
+  44                          //  1   1     OUTPUT     read the data from LCD model
+  45          
+  46          /******************************************************************************
+  47                           HD44780U    LCD_MODUL DRIVE PROGRAMME
+  48          *******************************************************************************
+  49          
+  50          total 2 lines, 16x2= 32
+  51          first line address:  0~15
+  52          second line address: 64~79
+  53          
+  54          total 2 lines, 20x2= 40
+C51 COMPILER V9.52.0.0   LCD1602B                                                          07/08/2014 16:46:13 PAGE 2   
+
+  55          first line address:  0~19
+  56          second line address: 64~83
+  57          
+  58          total 2 lines, 40x2= 80
+  59          first line address:  0~39
+  60          second line address: 64~103
+  61          */
+  62          
+  63          #define C_CLEAR     0x01    //clear LCD
+  64          #define C_HOME      0x02    //cursor go home
+  65          #define C_CUR_L     0x04    //cursor shift left after input
+  66          #define C_RIGHT     0x05    //picture shift right after input
+  67          #define C_CUR_R     0x06    //cursor shift right after input
+  68          #define C_LEFT      0x07    //picture shift left after input
+  69          #define C_OFF       0x08    //turn off LCD
+  70          #define C_ON        0x0C    //turn on  LCD
+  71          #define C_FLASH     0x0D    //turn on  LCD, flash 
+  72          #define C_CURSOR    0x0E    //turn on  LCD and cursor
+  73          #define C_FLASH_ALL   0x0F    //turn on  LCD and cursor, flash
+  74          #define C_CURSOR_LEFT 0x10    //single cursor shift left
+  75          #define C_CURSOR_RIGHT  0x10    //single cursor shift right
+  76          #define C_PICTURE_LEFT  0x10    //single picture shift left
+  77          #define C_PICTURE_RIGHT 0x10    //single picture shift right
+  78          #define C_BIT8      0x30    //set the data is 8 bits
+  79          #define C_BIT4      0x20    //set the data is 8 bits
+  80          #define C_L1DOT7    0x30    //8 bits,one line 5*7  dots
+  81          #define C_L1DOT10   0x34    //8 bits,one line 5*10 dots
+  82          #define C_L2DOT7    0x38    //8 bits,tow lines 5*7 dots
+  83          #define C_4bitL2DOT7  0x28    //4 bits,tow lines 5*7 dots
+  84          #define C_CGADDRESS0  0x40    //CGRAM address0 (addr=40H+x)
+  85          #define C_DDADDRESS0  0x80    //DDRAM address0 (addr=80H+x)
+  86          
+  87          
+  88          #define LCD_DelayNop()  NOP(20)
+  89          
+  90          #define   LCD_BusData(dat)  LCD_BUS = dat
+  91          
+  92          
+  93          void  CheckBusy(void)
+  94          {
+  95   1        u16 i;
+  96   1        for(i=0; i<5000; i++) {if(!LCD_B7)  break;}   //check the LCD busy or not. With time out
+  97   1      //  while(LCD_B7);      //check the LCD busy or not. Without time out
+  98   1      }
+  99          
+ 100          /**********************************************/
+ 101          void IniSendCMD(u8 cmd)   //write the command to LCD
+ 102          {
+ 103   1        LCD_RW = 0;
+ 104   1        LCD_BusData(cmd);
+ 105   1        LCD_DelayNop();
+ 106   1        LCD_ENA = 1;
+ 107   1        LCD_DelayNop();
+ 108   1        LCD_ENA = 0;
+ 109   1        LCD_BusData(0xff);
+ 110   1      }
+ 111          
+ 112          /**********************************************/
+ 113          void Write_CMD(u8 cmd)    //write the command to LCD
+ 114          {
+ 115   1        LCD_RS  = 0;
+ 116   1        LCD_RW = 1;
+C51 COMPILER V9.52.0.0   LCD1602B                                                          07/08/2014 16:46:13 PAGE 3   
+
+ 117   1        LCD_BusData(0xff);
+ 118   1        LCD_DelayNop();
+ 119   1        LCD_ENA = 1;
+ 120   1        CheckBusy();      //check the LCD busy or not.
+ 121   1        LCD_ENA = 0;
+ 122   1        LCD_RW = 0;
+ 123   1        
+ 124   1        LCD_BusData(cmd);
+ 125   1        LCD_DelayNop();
+ 126   1        LCD_ENA = 1;
+ 127   1        LCD_DelayNop();
+ 128   1        LCD_ENA = 0;
+ 129   1        LCD_BusData(0xff);
+ 130   1      }
+ 131          
+ 132          /**********************************************/
+ 133          void Write_DIS_Data(u8 dat)   //write the display data to LCD
+ 134          {
+ 135   1        LCD_RS = 0;
+ 136   1        LCD_RW = 1;
+ 137   1      
+ 138   1        LCD_BusData(0xff);
+ 139   1        LCD_DelayNop();
+ 140   1        LCD_ENA = 1;
+ 141   1        CheckBusy();      //check the LCD busy or not.
+ 142   1        LCD_ENA = 0;
+ 143   1        LCD_RW = 0;
+ 144   1        LCD_RS  = 1;
+ 145   1      
+ 146   1        LCD_BusData(dat);
+ 147   1        LCD_DelayNop();
+ 148   1        LCD_ENA = 1;
+ 149   1        LCD_DelayNop();
+ 150   1        LCD_ENA = 0;
+ 151   1        LCD_BusData(0xff);
+ 152   1      }
+ 153          
+ 154          
+ 155          /*********  初始化函数  **************************/
+ 156          void Initialize_LCD(void)   //intilize LCD, input none, output none
+ 157          {
+ 158   1        LCD_ENA = 0;
+ 159   1        LCD_RS  = 0;
+ 160   1        LCD_RW = 0;
+ 161   1      
+ 162   1        delay_ms(100);
+ 163   1        IniSendCMD(C_BIT8);   //set the data is 8 bits
+ 164   1      
+ 165   1        delay_ms(10);
+ 166   1        IniSendCMD(C_BIT8);   //set the data is 8 bits
+ 167   1      
+ 168   1        delay_ms(10);
+ 169   1        IniSendCMD(C_L2DOT7);   //tow lines 5*7 dots
+ 170   1      
+ 171   1        delay_ms(6);
+ 172   1        Write_CMD(C_CLEAR);   //clear LCD RAM
+ 173   1        Write_CMD(C_CUR_R);   //Curror Shift Right
+ 174   1      //  Write_CMD(C_FLASH_ALL); //turn on  LCD and cursor, flash
+ 175   1        Write_CMD(C_ON);    //turn on  LCD
+ 176   1      //  Write_AC(1,1);      //set the AC pointer
+ 177   1      }
+ 178          
+C51 COMPILER V9.52.0.0   LCD1602B                                                          07/08/2014 16:46:13 PAGE 4   
+
+ 179          
+ 180          /**********************************************/
+ 181          void Write_AC(u8 hang,u8 lie) //write the AC Pointer address to LCD
+ 182          {
+ 183   1        if(hang == 1) Write_CMD((lie-1)  | 0x80);
+ 184   1        if(hang == 2) Write_CMD((lie+63) | 0x80);
+ 185   1      }
+ 186          
+ 187          /**********************************************/
+ 188          void ClearLine(u8 hang)
+ 189          {
+ 190   1        u8 i;
+ 191   1        if((hang == 0) || (hang > 2))   return; 
+ 192   1        Write_AC(hang,1); //set the AC pointer
+ 193   1        for(i=0; i<LineLenth; i++)  Write_DIS_Data(' ');
+ 194   1      }
+ 195          
+ 196          
+ 197          /****************** 写一个字符，指定行、列和字符 ****************************/
+ 198          void  WriteChar(u8 hang,u8 lie,u8 dat)
+ 199          {
+ 200   1        if((hang == 0) || (hang > 2))   return; 
+ 201   1        if((lie == 0) || (lie > LineLenth)) return;
+ 202   1        Write_AC(hang,lie); //set the AC pointer
+ 203   1        Write_DIS_Data(dat);
+ 204   1      }
+ 205          
+ 206          /****************** 写一个字符串，指定行、列和字符串首地址 ****************************/
+ 207          void PutString(u8 hang,u8 lie,u8 *puts)
+ 208          {
+ 209   1        for ( ;  *puts != 0;  puts++)   //遇到停止符0结束
+ 210   1        {
+ 211   2          WriteChar(hang, lie, *puts);
+ 212   2          if(++lie > 20)  break;
+ 213   2        }
+ 214   1      }
+ 215          
+ 216          
+ 217          //******************** LCD40 Module END ***************************
+ 218          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    440    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
