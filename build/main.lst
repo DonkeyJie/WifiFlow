@@ -1,0 +1,71 @@
+C51 COMPILER V9.52.0.0   MAIN                                                              07/08/2014 20:40:32 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\build\main.obj
+COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.exe src\main.c BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECTE
+                    -XTEND PRINT(.\build\main.lst) TABS(2) OBJECT(.\build\main.obj)
+
+line level    source
+
+   1          #include "rey_config.h"
+   2          
+   3          
+   4          //global value
+   5          unsigned int systick=0;
+   6          void main(void)
+   7          {
+   8   1      
+   9   1        rey_usart_config();
+  10   1        rey_timer_config();
+  11   1        
+  12   1        Initialize_LCD();
+  13   1        ClearLine(1);
+  14   1        ClearLine(2);
+  15   1        
+  16   1        EA = 1;
+  17   1        PutString(1,1,"--INFO1:123456--");
+  18   1        PutString(2,1,"--INFO2:654321--");
+  19   1          while(1)
+  20   1          {
+  21   2              if(systick == 1000)
+  22   2              {
+  23   3                  systick = 0;
+  24   3                  P26=!P26;
+  25   3              }
+  26   2          }
+  27   1      }
+  28          
+  29          
+  30          
+  31          /********************* Timer0中断函数************************/
+  32          #ifdef USE_TIMER0
+  33          void timer0_int (void) interrupt TIMER0_VECTOR
+  34          {
+  35   1          systick++;
+  36   1      }
+  37          #endif
+  38          
+  39          /********************* Timer1中断函数************************/
+  40          #ifdef USE_TIMER1
+              void timer1_int (void) interrupt TIMER1_VECTOR
+              {
+              
+              }
+              #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     79    ----
+   CONSTANT SIZE    =     34    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.52.0.0   MAIN                                                              07/08/2014 20:40:32 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

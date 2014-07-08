@@ -1,0 +1,1 @@
+"lib\timer.c" BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECTEXTEND PRINT(.\build\timer.lst) TABS (2) OBJECT(.\build\timer.obj)

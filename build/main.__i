@@ -1,0 +1,1 @@
+"src\main.c" BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECTEXTEND PRINT(.\build\main.lst) TABS (2) OBJECT(.\build\main.obj)
