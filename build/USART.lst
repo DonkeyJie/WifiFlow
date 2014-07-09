@@ -1,10 +1,10 @@
-C51 COMPILER V9.52.0.0   USART                                                             07/08/2014 20:40:32 PAGE 1   
+C51 COMPILER V9.52.0.0   USART                                                             07/09/2014 15:59:21 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE USART
 OBJECT MODULE PLACED IN .\build\USART.obj
-COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.exe lib\USART.C BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECT
-                    -EXTEND PRINT(.\build\USART.lst) TABS(2) OBJECT(.\build\USART.obj)
+COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.EXE lib\USART.C BROWSE INCDIR(.\lib;.\src) DEBUG OBJECTEXTEND PRINT(.\build\
+                    -USART.lst) TABS(2) OBJECT(.\build\USART.obj)
 
 line level    source
 
@@ -62,7 +62,7 @@ line level    source
   52   4              TMOD &= ~0x40;  //定时
   53   4              INT_CLKO &= ~0x02;  //不输出时钟
   54   4              TR1  = 1;
-C51 COMPILER V9.52.0.0   USART                                                             07/08/2014 20:40:32 PAGE 2   
+C51 COMPILER V9.52.0.0   USART                                                             07/09/2014 15:59:21 PAGE 2   
 
   55   4            }
   56   3            else if(COMx->UART_BRT_Use == BRT_Timer2)
@@ -126,7 +126,7 @@ line level    source
                     AUXR &= ~(1<<3);  //Timer2 set As Timer
                     AUXR |=  (1<<2);  //Timer2 set as 1T mode
                     TH2 = (u8)(j>>8);
-C51 COMPILER V9.52.0.0   USART                                                             07/08/2014 20:40:32 PAGE 3   
+C51 COMPILER V9.52.0.0   USART                                                             07/09/2014 15:59:21 PAGE 3   
 
                     TL2 = (u8)j;
                     IE2  &= ~(1<<2);  //禁止中断
@@ -190,7 +190,7 @@ line level    source
               #endif
  177          
  178          /*
-C51 COMPILER V9.52.0.0   USART                                                             07/08/2014 20:40:32 PAGE 4   
+C51 COMPILER V9.52.0.0   USART                                                             07/09/2014 15:59:21 PAGE 4   
 
  179          void COMx_write2buff(COMx_Define *COMx, u8 dat) //写入发送缓冲，指针+1
  180          {
@@ -254,7 +254,7 @@ line level    source
                   if(COM2.TX_read != COM2.TX_write)
                   {
                     S2BUF = TX2_Buffer[COM2.TX_read];
-C51 COMPILER V9.52.0.0   USART                                                             07/08/2014 20:40:32 PAGE 5   
+C51 COMPILER V9.52.0.0   USART                                                             07/09/2014 15:59:21 PAGE 5   
 
                     if(++COM2.TX_read >= COM_TX2_Lenth)   COM2.TX_read = 0;
                   }
@@ -271,7 +271,7 @@ line level    source
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =    571    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =    256    ----
+   XDATA SIZE       =     80    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =      7       7
    IDATA SIZE       =   ----    ----

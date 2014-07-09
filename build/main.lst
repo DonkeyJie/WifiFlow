@@ -1,10 +1,10 @@
-C51 COMPILER V9.52.0.0   MAIN                                                              07/08/2014 20:40:32 PAGE 1   
+C51 COMPILER V9.52.0.0   MAIN                                                              07/09/2014 15:59:21 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN .\build\main.obj
-COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.exe src\main.c BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECTE
-                    -XTEND PRINT(.\build\main.lst) TABS(2) OBJECT(.\build\main.obj)
+COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.EXE src\main.c BROWSE INCDIR(.\lib;.\src) DEBUG OBJECTEXTEND PRINT(.\build\m
+                    -ain.lst) TABS(2) OBJECT(.\build\main.obj)
 
 line level    source
 
@@ -15,7 +15,7 @@ line level    source
    5          unsigned int systick=0;
    6          void main(void)
    7          {
-   8   1      
+   8   1        int i;
    9   1        rey_usart_config();
   10   1        rey_timer_config();
   11   1        
@@ -28,26 +28,42 @@ line level    source
   18   1        PutString(2,1,"--INFO2:654321--");
   19   1          while(1)
   20   1          {
-  21   2              if(systick == 1000)
-  22   2              {
-  23   3                  systick = 0;
-  24   3                  P26=!P26;
-  25   3              }
-  26   2          }
-  27   1      }
-  28          
-  29          
-  30          
-  31          /********************* Timer0中断函数************************/
-  32          #ifdef USE_TIMER0
-  33          void timer0_int (void) interrupt TIMER0_VECTOR
-  34          {
-  35   1          systick++;
-  36   1      }
-  37          #endif
-  38          
-  39          /********************* Timer1中断函数************************/
-  40          #ifdef USE_TIMER1
+  21   2            
+  22   2      //        if(systick == 1000)
+  23   2      //        {
+  24   2      //            systick = 0;
+  25   2      //            P26=!P26;
+  26   2      //        }
+  27   2            delay_ms(1);
+  28   2          if(COM1.RX_TimeOut > 0)   //超时计数
+  29   2          {
+  30   3            if(--COM1.RX_TimeOut == 0)
+  31   3            {
+  32   4              if(COM1.RX_Cnt > 0)
+  33   4              {
+  34   5                for(i=0; i<COM1.RX_Cnt; i++)  TX1_write2buff(RX1_Buffer[i]);  //收到的数据原样返回
+  35   5              }
+  36   4              COM1.RX_Cnt = 0;
+  37   4            }
+  38   3          }
+  39   2        }
+  40   1              
+  41   1      }
+  42          
+  43          
+  44          
+  45          /********************* Timer0中断函数************************/
+  46          #ifdef USE_TIMER0
+  47          void timer0_int (void) interrupt TIMER0_VECTOR
+  48          {
+  49   1          systick++;
+  50   1      }
+  51          #endif
+  52          
+  53          /********************* Timer1中断函数************************/
+  54          #ifdef USE_TIMER1
+C51 COMPILER V9.52.0.0   MAIN                                                              07/09/2014 15:59:21 PAGE 2   
+
               void timer1_int (void) interrupt TIMER1_VECTOR
               {
               
@@ -56,14 +72,12 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     79    ----
+   CODE SIZE        =    132    ----
    CONSTANT SIZE    =     34    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      2    ----
+   DATA SIZE        =      2       2
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.52.0.0   MAIN                                                              07/08/2014 20:40:32 PAGE 2   
-
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 

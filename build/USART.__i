@@ -1,1 +1,1 @@
-"lib\USART.C" BROWSE INCDIR(.\lib;.\src) PRINT(.\build\*.lst) DEBUG OBJECTEXTEND PRINT(.\build\USART.lst) TABS (2) OBJECT(.\build\USART.obj)
+"lib\USART.C" BROWSE INCDIR(.\lib;.\src) DEBUG OBJECTEXTEND PRINT(.\build\USART.lst) TABS (2) OBJECT(.\build\USART.obj)
