@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 16:27:34 PAGE 1   
+C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 20:08:24 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE TIMER
@@ -20,7 +20,7 @@ line level    source
   10          
   11          #include  "timer.h"
   12          
-  13          /********************* Timer0中断函数*******写在main中,作为时基********/
+  13          /********************* Timer0中断函数*******写在Soft_UART中,作为软串口********/
   14          #if 0
               void timer0_int (void) interrupt TIMER0_VECTOR
               {
@@ -62,7 +62,7 @@ line level    source
   52   2          if(TIMx->TIM_Interrupt == ENABLE)   ET0 = 1;  //允许中断
   53   2          else                  ET0 = 0;  //禁止中断
   54   2          if(TIMx->TIM_Polity == PolityHigh)    PT0 = 1;  //高优先级中断
-C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 16:27:34 PAGE 2   
+C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 20:08:24 PAGE 2   
 
   55   2          else                  PT0 = 0;  //低优先级中断
   56   2          if(TIMx->TIM_Mode >  TIM_16BitAutoReloadNoMask) return 2; //错误
@@ -126,7 +126,7 @@ line level    source
                   #endif
  114   1      
  115   1          #ifdef USE_TIMER2
-C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 16:27:34 PAGE 3   
+C51 COMPILER V9.52.0.0   TIMER                                                             07/12/2014 20:08:24 PAGE 3   
 
                 if(TIM == Timer2)   //Timer2,固定为16位自动重装, 中断无优先级
                 {

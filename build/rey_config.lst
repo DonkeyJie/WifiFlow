@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   REY_CONFIG                                                        07/12/2014 16:27:34 PAGE 1   
+C51 COMPILER V9.52.0.0   REY_CONFIG                                                        07/12/2014 20:08:24 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE REY_CONFIG
@@ -62,7 +62,7 @@ line level    source
   46   1      
   47   1          #ifdef USE_TIMER2
                 TIM_InitStructure.TIM_Interrupt = ENABLE;       //中断是否允许,   ENABLE或DISABLE. (注意: Timer2固定为16位自
-C51 COMPILER V9.52.0.0   REY_CONFIG                                                        07/12/2014 16:27:34 PAGE 2   
+C51 COMPILER V9.52.0.0   REY_CONFIG                                                        07/12/2014 20:08:24 PAGE 2   
 
              -动重装, 中断固定为低优先级)
                 TIM_InitStructure.TIM_ClkSource = TIM_CLOCK_12T;    //指定时钟源,     TIM_CLOCK_1T,TIM_CLOCK_12T,TIM_CLOCK_

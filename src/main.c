@@ -8,6 +8,7 @@ void main(void)
 //	int i;
 	rey_usart_config();
   rey_timer_config();
+	SOFT_UART_INIT();
 	
 	Initialize_LCD();
 	ClearLine(1);
@@ -24,8 +25,22 @@ void main(void)
 	SendCommand(getmacaddr,ComanndLenth10);	
     while(1)
     {
-	;
+			if (REND)				//如果接收完,把接收到的值存入接收buff
+		{
+			REND = 0;
+			buf[r++ & 0x0f] = RBUF;
 		}
+
+		if(!TING)		//发送空闲
+		{
+			if (t != r)	//有要发送的数据
+			{
+				TBUF = buf[t++ & 0x0f];
+				TING = 1;
+			}
+		}
+	}
+
 				
 }
 void SendCommand(u8 *puts,u8 length)
@@ -41,12 +56,12 @@ void SendCommand(u8 *puts,u8 length)
 
 
 /********************* Timer0中断函数************************/
-#ifdef USE_TIMER0
-void timer0_int (void) interrupt TIMER0_VECTOR
-{
-    systick++;
-}
-#endif
+//#ifdef USE_TIMER0
+//void timer0_int (void) interrupt TIMER0_VECTOR
+//{
+//    systick++;
+//}
+//#endif
 
 /********************* Timer1中断函数************************/
 #ifdef USE_TIMER1

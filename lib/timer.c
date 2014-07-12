@@ -10,7 +10,7 @@
 
 #include	"timer.h"
 
-/********************* Timer0中断函数*******写在main中,作为时基********/
+/********************* Timer0中断函数*******写在Soft_UART中,作为软串口********/
 #if 0
 void timer0_int (void) interrupt TIMER0_VECTOR
 {
