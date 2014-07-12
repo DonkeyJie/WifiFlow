@@ -3,6 +3,7 @@
 ".\build\delay.obj",
 ".\build\LCD1602B.obj",
 ".\build\USART.obj",
-".\build\timer.obj" 
+".\build\timer.obj",
+".\build\command.obj" 
 TO ".\build\Wifi_Flow" 
 PRINT(".\build\Wifi_Flow.m51") RAMSIZE(256) 

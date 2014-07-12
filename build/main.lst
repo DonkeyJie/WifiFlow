@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   MAIN                                                              07/09/2014 15:59:21 PAGE 1   
+C51 COMPILER V9.52.0.0   MAIN                                                              07/12/2014 16:27:34 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
@@ -10,12 +10,12 @@ line level    source
 
    1          #include "rey_config.h"
    2          
-   3          
+   3          void SendCommand(u8 *puts, u8 length);
    4          //global value
    5          unsigned int systick=0;
    6          void main(void)
    7          {
-   8   1        int i;
+   8   1      //  int i;
    9   1        rey_usart_config();
   10   1        rey_timer_config();
   11   1        
@@ -26,57 +26,55 @@ line level    source
   16   1        EA = 1;
   17   1        PutString(1,1,"--INFO1:123456--");
   18   1        PutString(2,1,"--INFO2:654321--");
-  19   1          while(1)
-  20   1          {
-  21   2            
-  22   2      //        if(systick == 1000)
-  23   2      //        {
-  24   2      //            systick = 0;
-  25   2      //            P26=!P26;
-  26   2      //        }
-  27   2            delay_ms(1);
-  28   2          if(COM1.RX_TimeOut > 0)   //超时计数
-  29   2          {
-  30   3            if(--COM1.RX_TimeOut == 0)
-  31   3            {
-  32   4              if(COM1.RX_Cnt > 0)
-  33   4              {
-  34   5                for(i=0; i<COM1.RX_Cnt; i++)  TX1_write2buff(RX1_Buffer[i]);  //收到的数据原样返回
-  35   5              }
-  36   4              COM1.RX_Cnt = 0;
-  37   4            }
-  38   3          }
-  39   2        }
-  40   1              
-  41   1      }
+  19   1        
+  20   1        SendCommand(getver,ComanndLenth10);
+  21   1        SendCommand(getname,ComanndLenth10);
+  22   1        SendCommand(getuartmode,ComanndLenth10);
+  23   1        SendCommand(getdualup,ComanndLenth10);  
+  24   1        SendCommand(getmacaddr,ComanndLenth10); 
+  25   1          while(1)
+  26   1          {
+  27   2        ;
+  28   2          }
+  29   1              
+  30   1      }
+  31          void SendCommand(u8 *puts,u8 length)
+  32          {
+  33   1            unsigned int i;
+  34   1            for (i=0; i< length;  i++)  
+  35   1              {
+  36   2                TX1_write2buff(*puts);  //遇到停止符0结束
+  37   2                puts++;
+  38   2              }
+  39   1            while(COM1.TX_Cnt != 0){;}
+  40   1      }
+  41          
   42          
-  43          
-  44          
-  45          /********************* Timer0中断函数************************/
-  46          #ifdef USE_TIMER0
-  47          void timer0_int (void) interrupt TIMER0_VECTOR
-  48          {
-  49   1          systick++;
-  50   1      }
-  51          #endif
-  52          
-  53          /********************* Timer1中断函数************************/
-  54          #ifdef USE_TIMER1
-C51 COMPILER V9.52.0.0   MAIN                                                              07/09/2014 15:59:21 PAGE 2   
-
+  43          /********************* Timer0中断函数************************/
+  44          #ifdef USE_TIMER0
+  45          void timer0_int (void) interrupt TIMER0_VECTOR
+  46          {
+  47   1          systick++;
+  48   1      }
+  49          #endif
+  50          
+  51          /********************* Timer1中断函数************************/
+  52          #ifdef USE_TIMER1
               void timer1_int (void) interrupt TIMER1_VECTOR
               {
+C51 COMPILER V9.52.0.0   MAIN                                                              07/12/2014 16:27:34 PAGE 2   
+
               
               }
               #endif
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    132    ----
+   CODE SIZE        =    176    ----
    CONSTANT SIZE    =     34    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      2       2
+   DATA SIZE        =      2       6
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

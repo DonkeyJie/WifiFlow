@@ -14,7 +14,7 @@ void    rey_usart_config(void)
 	COMx_InitStructure.UART_RXD_TXD_Short = DISABLE;		//内部短路RXD与TXD, 做中继, ENABLE,DISABLE
 	USART_Configuration(USART1, &COMx_InitStructure);		//初始化串口1 USART1,USART2
 
-	PrintString1("STC15F2K60S2 UART1 Test Prgramme!\r\n");	//SUART1发送一个字符串
+//	PrintString1("STC15F2K60S2 UART1 Test Prgramme!\r\n");	//SUART1发送一个字符串
 }
 
 void	rey_timer_config(void)

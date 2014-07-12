@@ -6,8 +6,8 @@
 
 #define	COM_TX1_Lenth	40
 #define	COM_RX1_Lenth	40
-#define	COM_TX2_Lenth	128
-#define	COM_RX2_Lenth	128
+#define	COM_TX2_Lenth	0
+#define	COM_RX2_Lenth	0
 
 #define	USART1	1
 #define	USART2	2
@@ -36,6 +36,7 @@ typedef struct
 
 	u8	TX_read;		//发送读指针
 	u8	TX_write;		//发送写指针
+	u8  TX_Cnt;     //发送字节计数
 	u8	B_TX_busy;		//忙标志
 
 	u8 	RX_Cnt;			//接收字节计数

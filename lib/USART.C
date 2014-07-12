@@ -23,6 +23,7 @@ u8 USART_Configuration(u8 UARTx, COMx_InitDefine *COMx)
 		COM1.id = 1;
 		COM1.TX_read    = 0;
 		COM1.TX_write   = 0;
+		COM1.TX_Cnt     = 0;
 		COM1.B_TX_busy  = 0;
 		COM1.RX_Cnt     = 0;
 		COM1.RX_TimeOut = 0;
@@ -136,6 +137,7 @@ u8 USART_Configuration(u8 UARTx, COMx_InitDefine *COMx)
 void TX1_write2buff(u8 dat)	//Ð´Èë·¢ËÍ»º³å£¬Ö¸Õë+1
 {
 	TX1_Buffer[COM1.TX_write] = dat;	//×°·¢ËÍ»º³å
+	COM1.TX_Cnt ++;
 	if(++COM1.TX_write >= COM_TX1_Lenth)	COM1.TX_write = 0;
 
 	if(COM1.B_TX_busy == 0)		//¿ÕÏÐ
@@ -210,6 +212,7 @@ void UART1_int (void) interrupt UART1_VECTOR
 		if(COM1.TX_read != COM1.TX_write)
 		{
 		 	SBUF = TX1_Buffer[COM1.TX_read];
+			COM1.TX_Cnt--;
 			if(++COM1.TX_read >= COM_TX1_Lenth)		COM1.TX_read = 0;
 		}
 		else	COM1.B_TX_busy = 0;
