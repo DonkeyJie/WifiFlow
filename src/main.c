@@ -5,41 +5,43 @@ void SendCommand(u8 *puts, u8 length);
 unsigned int systick=0;
 void main(void)
 {
-//	int i;
+	int i;
 	rey_usart_config();
   rey_timer_config();
-	SOFT_UART_INIT();
+
 	
 	Initialize_LCD();
 	ClearLine(1);
 	ClearLine(2);
 	
-	EA = 1;
+	EA = 0;
+
 	PutString(1,1,"--INFO1:123456--");
 	PutString(2,1,"--INFO2:654321--");
-	
+//	P13=0;
+
 	SendCommand(getver,ComanndLenth10);
 	SendCommand(getname,ComanndLenth10);
 	SendCommand(getuartmode,ComanndLenth10);
-	SendCommand(getdualup,ComanndLenth10);	
-	SendCommand(getmacaddr,ComanndLenth10);	
+//	SendCommand(getdualup,ComanndLenth10);	
+//	SendCommand(getmacaddr,ComanndLenth10);	
+//	SendCommand(start,ComanndLenth10);
     while(1)
-    {
-			if (REND)				//如果接收完,把接收到的值存入接收buff
+    {	
+		if(COM1.RX_TimeOut > 0)		//超时计数
 		{
-			REND = 0;
-			buf[r++ & 0x0f] = RBUF;
-		}
-
-		if(!TING)		//发送空闲
-		{
-			if (t != r)	//有要发送的数据
+			if(--COM1.RX_TimeOut == 0)
 			{
-				TBUF = buf[t++ & 0x0f];
-				TING = 1;
+				if(COM1.RX_Cnt > 0)
+				{
+					for(i=0; i<COM1.RX_Cnt; i++)	TX1_write2buff(RX1_Buffer[i]);	//收到的数据原样返回
+				}
+				COM1.RX_Cnt = 0;
 			}
 		}
-	}
+		}
+	
+	
 
 				
 }
@@ -56,12 +58,12 @@ void SendCommand(u8 *puts,u8 length)
 
 
 /********************* Timer0中断函数************************/
-//#ifdef USE_TIMER0
-//void timer0_int (void) interrupt TIMER0_VECTOR
-//{
-//    systick++;
-//}
-//#endif
+#ifdef USE_TIMER0
+void timer0_int (void) interrupt TIMER0_VECTOR
+{
+    systick++;
+}
+#endif
 
 /********************* Timer1中断函数************************/
 #ifdef USE_TIMER1

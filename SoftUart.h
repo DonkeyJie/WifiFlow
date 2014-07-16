@@ -16,7 +16,8 @@ extern u8  xdata TDAT,RDAT;
 extern u8  xdata TCNT,RCNT;	//发送和接收检测 计数器(3倍速率检测)
 extern u8  xdata TBIT,RBIT;	//发送和接收的数据计数器
 extern u8  xdata t, r;
-extern u8  xdata buf[16];
+extern u8  xdata rbuff[16];
+extern u8  xdata tbuff[16];
 
 
 

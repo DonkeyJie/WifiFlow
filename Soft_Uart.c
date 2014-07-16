@@ -7,7 +7,8 @@ u8  xdata TDAT,RDAT;
 u8  xdata TCNT,RCNT;	//发送和接收检测 计数器(3倍速率检测)
 u8  xdata TBIT,RBIT;	//发送和接收的数据计数器
 u8  xdata t, r;
-u8  xdata buf[16];
+u8  xdata rbuff[16];
+u8  xdata tbuff[16];
 
 bit  TING,RING;	//正在发送或接收一个字节
 bit  REND;	 	//接收完的标志位
