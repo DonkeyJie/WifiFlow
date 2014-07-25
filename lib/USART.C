@@ -163,19 +163,19 @@ void TX2_write2buff(u8 dat)	//写入发送缓冲，指针+1
 #endif
 
 
-#ifdef USE_USART1
-void PrintString1(u8 *puts)
-{
-    for (; *puts != 0;	puts++)  TX1_write2buff(*puts); 	//遇到停止符0结束
-}
-#endif
+//#ifdef USE_USART1
+//void PrintString1(u8 *puts)
+//{
+//    for (; *puts != 0;	puts++)  TX1_write2buff(*puts); 	//遇到停止符0结束
+//}
+//#endif
 
-#ifdef USE_USART2
-void PrintString2(u8 *puts)
-{
-    for (; *puts != 0;	puts++)  TX2_write2buff(*puts); 	//遇到停止符0结束
-}
-#endif
+//#ifdef USE_USART2
+//void PrintString2(u8 *puts)
+//{
+//    for (; *puts != 0;	puts++)  TX2_write2buff(*puts); 	//遇到停止符0结束
+//}
+//#endif
 
 /*
 void COMx_write2buff(COMx_Define *COMx, u8 dat)	//写入发送缓冲，指针+1

@@ -4,60 +4,62 @@
 
 #define CMD_TYPE idata
 
-#define ComanndLenth8  (8)
-#define ComanndLenth7  (7)
-#define ComanndLenth10 (10)
-#define ComanndLenth20 (20)
+typedef struct{
+	u8 command[2];
+	u8 length[2];
+	u8 result[2];
+	u8 checksum[2];
+} Comm;
 
+//extern CMD_TYPE Comm getver;
+//extern CMD_TYPE Comm getconfig; 
+//extern CMD_TYPE Comm setconfig;
 
-extern u8 CMD_TYPE getver[10];
-extern u8  CMD_TYPE getconfig[10]; 
-extern u8  CMD_TYPE setconfig[8];
+//extern CMD_TYPE Comm getdns;
+//extern CMD_TYPE Comm setdns;
 
-extern u8  CMD_TYPE getdns[10];
-extern u8  CMD_TYPE setdns[8];
+//extern CMD_TYPE Comm getextrassid;
+//extern CMD_TYPE Comm setextrassid;
 
-extern u8  CMD_TYPE getextrassid[10];
-extern u8  CMD_TYPE setextrassid[8];
+//extern CMD_TYPE Comm getextrasocket;
+//extern CMD_TYPE Comm setextrasocket;
 
-extern u8  CMD_TYPE getextrasocket[10];
-extern u8  CMD_TYPE setextrasocket[8];
+//extern CMD_TYPE Comm getkeepalive;
+//extern CMD_TYPE Comm setkeepalive;
 
-extern u8  CMD_TYPE getkeepalive[10];
-extern u8  CMD_TYPE setkeepalive[8];
+//extern CMD_TYPE Comm getpsmode;
+//extern CMD_TYPE Comm setpsmode;
 
-extern u8  CMD_TYPE getpsmode[10];
-extern u8  CMD_TYPE setpsmode[20];
+//extern CMD_TYPE Comm getdualup;
+//extern CMD_TYPE Comm setdualup;
 
-extern u8  CMD_TYPE getdualup[10];
-extern u8  CMD_TYPE setdualup[8];
+//extern CMD_TYPE Comm getuartmode;
+//extern CMD_TYPE Comm setuartmode;
 
-extern u8  CMD_TYPE getuartmode[10];
-extern u8  CMD_TYPE setuartmode[8];
+//extern CMD_TYPE Comm getname;
+//extern CMD_TYPE Comm setname;
 
-extern u8  CMD_TYPE getname[10];
-extern u8  CMD_TYPE setname[7];
-
-extern u8  CMD_TYPE getmacaddr[10];
+//extern CMD_TYPE Comm getmacaddr;
 
 ////Dynamic Command
-//extern u8  CMD_TYPE reset[10];
+//extern CMD_TYPE Comm reset;
 
-//extern u8  CMD_TYPE start[10];
+extern CMD_TYPE  Comm  start;
 
-//extern u8  CMD_TYPE getstatus[10];
+//extern CMD_TYPE Comm getstatus;
 
-//extern u8  CMD_TYPE getip[10];
+//extern CMD_TYPE Comm getip;
 
-//extern u8  CMD_TYPE opensocket[8];
+extern CMD_TYPE  Comm opensocket;
 
-//extern u8  CMD_TYPE closesocket[10];
+extern CMD_TYPE Comm closesocket;
 
-//extern u8  CMD_TYPE wifistop[10];
+//extern CMD_TYPE Comm wifistop;
 
-//extern u8  CMD_TYPE wificonnect[10];
+//extern CMD_TYPE Comm wificonnect;
 
-//extern u8  CMD_TYPE scanap[10];
+//extern CMD_TYPE Comm scanap;
+extern CMD_TYPE Comm senddata;
 
 
 #endif

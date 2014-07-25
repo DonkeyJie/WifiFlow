@@ -7,7 +7,8 @@
 #include    "timer.h"
 #include  "LCD1602.h"
 #include  "command.h"
-
+#include  "SoftUart.h"
+#include "PROTOCOL.h"
 
 void	rey_usart_config(void);
 void	rey_timer_config(void);

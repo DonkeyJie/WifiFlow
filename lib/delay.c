@@ -38,3 +38,12 @@ void  delay_ms(unsigned char ms)
 		  while(--i)	;   //14T per loop
      }while(--ms);
 }
+
+void delay_100ms(unsigned char ms)
+{
+	unsigned char i;
+	for(i=0;i<ms;i++)
+	{
+		delay_ms(100);
+	}
+}

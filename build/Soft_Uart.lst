@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   SOFT_UART                                                         07/13/2014 15:39:41 PAGE 1   
+C51 COMPILER V9.52.0.0   SOFT_UART                                                         07/25/2014 15:24:16 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE SOFT_UART
@@ -17,103 +17,102 @@ line level    source
    7          u8  xdata TCNT,RCNT;  //发送和接收检测 计数器(3倍速率检测)
    8          u8  xdata TBIT,RBIT;  //发送和接收的数据计数器
    9          u8  xdata t, r;
-  10          u8  xdata rbuff[16];
-  11          u8  xdata tbuff[16];
-  12          
-  13          bit  TING,RING; //正在发送或接收一个字节
-  14          bit  REND;    //接收完的标志位
-  15          
-  16          //-----------------------------------------
-  17          //UART模块的初始变量  initial UART module variable
-  18          void SOFT_UART_INIT(void)
-  19          {
-  20   1          InternalRAM_enable();
-  21   1      //  ExternalRAM_enable();
-  22   1      
-  23   1          Timer0_1T();
-  24   1          Timer0_AsTimer();
-  25   1          Timer0_16bitAutoReload();
-  26   1          Timer0_Load(Timer0_Reload);
-  27   1          Timer0_InterruptEnable();
-  28   1          Timer0_Run();
-  29   1            
-  30   1        
-  31   1            TING = 0;
-  32   1            RING = 0;
-  33   1            REND = 0;
-  34   1            TCNT = 0;
-  35   1            RCNT = 0;
-  36   1      }
-  37          
-  38          //-----------------------------------------
-  39          //定时器0中断程序for UART 以波特率3倍的速度采样判断 开始位    Timer interrupt routine for UART
-  40          #ifdef USE_TIMER0
-  41          void timer0_int (void) interrupt TIMER0_VECTOR
-  42          {
-  43   1          if (RING)
-  44   1        {
-  45   2          if (--RCNT == 0)          //接收数据以定时器的1/3来接收
-  46   2          {
-  47   3            RCNT = 3;                   //重置接收计数器  接收数据以定时器的1/3来接收 reset send baudrate counter
-  48   3            if (--RBIT == 0)        //接收完一帧数据
-  49   3            {
-  50   4              RBUF = RDAT;            //存储数据到缓冲区  save the data to RBUF
-  51   4              RING = 0;               //停止接收      stop receive
-  52   4              REND = 1;               //接收完成标志设置  set receive completed flag
-  53   4            }
-  54   3            else
-C51 COMPILER V9.52.0.0   SOFT_UART                                                         07/13/2014 15:39:41 PAGE 2   
+  10          u8  xdata buf[16];
+  11          
+  12          bit  TING,RING; //正在发送或接收一个字节
+  13          bit  REND;    //接收完的标志位
+  14          
+  15          //-----------------------------------------
+  16          //UART模块的初始变量  initial UART module variable
+  17          void SOFT_UART_INIT(void)
+  18          {
+  19   1          InternalRAM_enable();
+  20   1      //  ExternalRAM_enable();
+  21   1      
+  22   1          Timer0_1T();
+  23   1          Timer0_AsTimer();
+  24   1          Timer0_16bitAutoReload();
+  25   1          Timer0_Load(Timer0_Reload);
+  26   1          Timer0_InterruptEnable();
+  27   1          Timer0_Run();
+  28   1            
+  29   1        
+  30   1            TING = 0;
+  31   1            RING = 0;
+  32   1            REND = 0;
+  33   1            TCNT = 0;
+  34   1            RCNT = 0;
+  35   1      }
+  36          
+  37          //-----------------------------------------
+  38          //定时器0中断程序for UART 以波特率3倍的速度采样判断 开始位    Timer interrupt routine for UART
+  39          #ifdef USE_TIMER0
+  40          void timer0_int (void) interrupt TIMER0_VECTOR
+  41          {
+  42   1          if (RING)
+  43   1        {
+  44   2          if (--RCNT == 0)          //接收数据以定时器的1/3来接收
+  45   2          {
+  46   3            RCNT = 3;                   //重置接收计数器  接收数据以定时器的1/3来接收 reset send baudrate counter
+  47   3            if (--RBIT == 0)        //接收完一帧数据
+  48   3            {
+  49   4              RBUF = RDAT;            //存储数据到缓冲区  save the data to RBUF
+  50   4              RING = 0;               //停止接收      stop receive
+  51   4              REND = 1;               //接收完成标志设置  set receive completed flag
+  52   4            }
+  53   3            else
+  54   3            {
+C51 COMPILER V9.52.0.0   SOFT_UART                                                         07/25/2014 15:24:16 PAGE 2   
 
-  55   3            {
-  56   4              RDAT >>= 1;       //把接收的单b数据 暂存到 RDAT(接收缓冲)
-  57   4              if (RXB) RDAT |= 0x80;  //shift RX data to RX buffer
-  58   4            }
-  59   3          }
-  60   2        }
-  61   1      
-  62   1        else if (!RXB)    //判断是不是开始位 RXB=0;
-  63   1        {
-  64   2          RING = 1;       //如果是则设置开始接收标志位  set start receive flag
-  65   2          RCNT = 4;       //初始化接收波特率计数器        initial receive baudrate counter
-  66   2          RBIT = RxBitLenth;       //初始化接收的数据位数(8个数据位+1个停止位)    initial receive bit number (8 da
+  55   4              RDAT >>= 1;       //把接收的单b数据 暂存到 RDAT(接收缓冲)
+  56   4              if (RXB) RDAT |= 0x80;  //shift RX data to RX buffer
+  57   4            }
+  58   3          }
+  59   2        }
+  60   1      
+  61   1        else if (!RXB)    //判断是不是开始位 RXB=0;
+  62   1        {
+  63   2          RING = 1;       //如果是则设置开始接收标志位  set start receive flag
+  64   2          RCNT = 4;       //初始化接收波特率计数器        initial receive baudrate counter
+  65   2          RBIT = RxBitLenth;       //初始化接收的数据位数(8个数据位+1个停止位)    initial receive bit number (8 da
              -ta bits + 1 stop bit)
-  67   2        }
-  68   1      
-  69   1        if (TING)     //发送开始标志位   judge whether sending
-  70   1        {
-  71   2          if (--TCNT == 0)      //发送数据以定时器的1/3来发送
-  72   2          {
-  73   3            TCNT = 3;       //重置发送计数器   reset send baudrate counter
-  74   3            if (TBIT == 0)      //发送计数器为0 表明单字节发送还没开始
-  75   3            {
-  76   4              TXB = 0;      //发送开始位              send start bit
-  77   4              TDAT = TBUF;    //把缓冲的数据放到发送的buff    load data from TBUF to TDAT
-  78   4              TBIT = TxBitLenth;  //发送数据位数 (8数据位+1停止位)  initial send bit number (8 data bits + 1 stop bit)
-  79   4            }
-  80   3            else          //发送计数器为非0 正在发送数据
-  81   3            {
-  82   4              if (--TBIT == 0)  //发送计数器减为0 表明单字节发送结束
-  83   4              {
-  84   5                TXB = 1;    //送停止位数据
-  85   5                TING = 0;   //发送停止位          stop send
-  86   5              }
-  87   4              else
-  88   4              {
-  89   5                TDAT >>= 1;   //把最低位送到 CY(益处标志位) shift data to CY
-  90   5                TXB = CY;   //发送单b数据       write CY to TX port
-  91   5              }
-  92   4            }
-  93   3          }
-  94   2        }
-  95   1        
-  96   1      }
-  97          #endif
+  66   2        }
+  67   1      
+  68   1        if (TING)     //发送开始标志位   judge whether sending
+  69   1        {
+  70   2          if (--TCNT == 0)      //发送数据以定时器的1/3来发送
+  71   2          {
+  72   3            TCNT = 3;       //重置发送计数器   reset send baudrate counter
+  73   3            if (TBIT == 0)      //发送计数器为0 表明单字节发送还没开始
+  74   3            {
+  75   4              TXB = 0;      //发送开始位              send start bit
+  76   4              TDAT = TBUF;    //把缓冲的数据放到发送的buff    load data from TBUF to TDAT
+  77   4              TBIT = TxBitLenth;  //发送数据位数 (8数据位+1停止位)  initial send bit number (8 data bits + 1 stop bit)
+  78   4            }
+  79   3            else          //发送计数器为非0 正在发送数据
+  80   3            {
+  81   4              if (--TBIT == 0)  //发送计数器减为0 表明单字节发送结束
+  82   4              {
+  83   5                TXB = 1;    //送停止位数据
+  84   5                TING = 0;   //发送停止位          stop send
+  85   5              }
+  86   4              else
+  87   4              {
+  88   5                TDAT >>= 1;   //把最低位送到 CY(益处标志位) shift data to CY
+  89   5                TXB = CY;   //发送单b数据       write CY to TX port
+  90   5              }
+  91   4            }
+  92   3          }
+  93   2        }
+  94   1        
+  95   1      }
+  96          #endif
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =    192    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     42    ----
+   XDATA SIZE       =     26    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

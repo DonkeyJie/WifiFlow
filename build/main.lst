@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   MAIN                                                              07/13/2014 21:02:14 PAGE 1   
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
@@ -9,90 +9,389 @@ COMPILER INVOKED BY: e:\Keil_v5\C51\BIN\C51.EXE src\main.c BROWSE INCDIR(.\lib;.
 line level    source
 
    1          #include "rey_config.h"
-   2          
-   3          void SendCommand(u8 *puts, u8 length);
-   4          //global value
-   5          unsigned int systick=0;
-   6          void main(void)
-   7          {
-   8   1        int i;
-   9   1        rey_usart_config();
-  10   1        rey_timer_config();
-  11   1      
-  12   1        
-  13   1        Initialize_LCD();
-  14   1        ClearLine(1);
-  15   1        ClearLine(2);
-  16   1        
-  17   1        EA = 0;
-  18   1      
-  19   1        PutString(1,1,"--INFO1:123456--");
-  20   1        PutString(2,1,"--INFO2:654321--");
-  21   1      //  P13=0;
-  22   1      
-  23   1        SendCommand(getver,ComanndLenth10);
-  24   1        SendCommand(getname,ComanndLenth10);
-  25   1        SendCommand(getuartmode,ComanndLenth10);
-  26   1      //  SendCommand(getdualup,ComanndLenth10);  
-  27   1      //  SendCommand(getmacaddr,ComanndLenth10); 
-  28   1      //  SendCommand(start,ComanndLenth10);
-  29   1          while(1)
-  30   1          { 
-  31   2          if(COM1.RX_TimeOut > 0)   //³¬Ê±¼ÆÊý
-  32   2          {
-  33   3            if(--COM1.RX_TimeOut == 0)
-  34   3            {
-  35   4              if(COM1.RX_Cnt > 0)
-  36   4              {
-  37   5                for(i=0; i<COM1.RX_Cnt; i++)  TX1_write2buff(RX1_Buffer[i]);  //ÊÕµ½µÄÊý¾ÝÔ­Ñù·µ»Ø
-  38   5              }
-  39   4              COM1.RX_Cnt = 0;
-  40   4            }
-  41   3          }
-  42   2          }
-  43   1        
-  44   1        
-  45   1      
-  46   1              
-  47   1      }
-  48          void SendCommand(u8 *puts,u8 length)
-  49          {
-  50   1            unsigned int i;
-  51   1            for (i=0; i< length;  i++)  
-  52   1              {
-  53   2                TX1_write2buff(*puts);  //Óöµ½Í£Ö¹·û0½áÊø
-  54   2                puts++;
-C51 COMPILER V9.52.0.0   MAIN                                                              07/13/2014 21:02:14 PAGE 2   
+   2          //#define test_suart2huart
+   3          //#define test_checksum
+   4          //#define test_HighLevelProt
+   5          #define test_Hlevel
+   6          
+   7          
+   8          //global value
+   9            u8  idata HandShakeT=10;
+  10            u8  idata MacAdd[6];
+  11            u8  idata DevID[2];
+  12            u8  idata Domain[40];
+  13            u8  idata Port[4];
+  14            u8  idata DatThre[4];
+  15            u8  idata DatCurr[4];
+  16          
+  17            idata Socket exSo1={0x00,0x01,0x1F,0xF5,"192.168.23.1"};
+  18            //  u8  idata Rec[10];
+  19          
+  20            xdata u8 state=0;
+  21            
+  22            unsigned char i=0; //½ÓÊÕË÷Òý
+  23          
+  24          
+  25          
+  26            void SendCommand(Comm puts,Socket *p);
+  27            void SendDat(Comm puts,u8 *p,u8 length);
+  28            u16 calc_sum(void *dat,u32 len);
+  29          //  u16 ReceiveData(u8 *p,u8 l);
+  30          //  u8 Hcalc_sum(void *dat,u32 len);
+  31          
+  32          void main(void)
+  33          {
+  34   1      
+  35   1        unsigned char j=HandShakeT; //¼ÆÊý
+  36   1        unsigned char n=0; //¼ÆÊý
+  37   1        u8 length=0;    //Êý¾Ý³¤¶È
+  38   1        u16 checks=0;  //Ð£ÑéºÍ
+  39   1        u8 che[6]={0x61,0x62,0x63,0x64,0x65,0x66};  //´ý·¢ËÍ²âÊÔÊý¾Ý  ¡a"abcdef"
+  40   1      
+  41   1        u16 x=0;
+  42   1        rey_usart_config();
+  43   1        rey_timer_config();
+  44   1        SOFT_UART_INIT();
+  45   1        
+  46   1        Initialize_LCD();
+  47   1        ClearLine(1);
+  48   1        ClearLine(2);
+  49   1        
+  50   1        P13 = 0;   //make the mxchip wifi module into the EMSP CMD mode
+  51   1      
+  52   1        
+  53   1        EA = 1;
+  54   1        PutString(1,1,"--INFO1:123456--");
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 2   
 
-  55   2              }
-  56   1            while(COM1.TX_Cnt != 0){;}
-  57   1      }
-  58          
-  59          
-  60          /********************* Timer0ÖÐ¶Ïº¯Êý************************/
-  61          #ifdef USE_TIMER0
-  62          void timer0_int (void) interrupt TIMER0_VECTOR
-  63          {
-  64   1          systick++;
-  65   1      }
-  66          #endif
-  67          
-  68          /********************* Timer1ÖÐ¶Ïº¯Êý************************/
-  69          #ifdef USE_TIMER1
+  55   1        PutString(2,1,"--INFO2:654321--");
+  56   1        
+  57   1        for(n =0;i<10;i++)         //ÑÓ³ÙÒ»¶¨Ê±¼ä ÒÔÈÃwifiÄ£¿éÍê³ÉÆô¶¯
+  58   1        {
+  59   2          delay_ms(3000000000);
+  60   2        }
+  61   1        SendDat(start,0,0);        //¿ªÆôÍøÂç
+  62   1        delay_ms(10000);
+  63   1        
+  64   1        x=calc_sum(che,4);         //¼ÆËãÊý¾Ý²¿·ÖµÄÐ£ÑéºÍ
+  65   1          while(1)
+  66   1          {
+  67   2      // use to test soft uart send data to hard uart.  (not working!)      (ÄÚ²¿¶Ì½ÓÓ²¼þ´®¿ÚµÄ·¢ËÍºÍ½ÓÊÕÎÞÐ§£¬Íâ²¿
+             -ÌøÃ±¶Ì½Ó¿ÉÒÔÊÕ·¢)
+  68   2      #ifdef test_suart2huart
+                  if (REND)                //Èç¹û½ÓÊÕÍê,°Ñ½ÓÊÕµ½µÄÖµ´æÈë½ÓÊÕbuff
+                  {
+                    REND = 0;
+                    TX1_write2buff(RBUF);
+                  }
+              
+                  if(!TING)                //·¢ËÍ¿ÕÏÐ
+                  {   
+              #ifdef test_checksum
+                    TBUF = (x>>8) & 0xff;  //the first byte is not i want,but i did't know where it come from. 
+                                           //it has no relationship with the data we sent,but it's the same as the address 
+             -of main function. and it always the same..(0x82)
+                    TING =1;
+                    delay_ms(100);         //need delay,or it may not send the next data; don't know why..
+                    TBUF = x &0xff ;
+                    TING =1;
+              #endif
+                    while(COM1.RX_Cnt != i) //ÓÐÒª·¢ËÍµÄÊý¾Ý
+                    {
+                      TBUF = RX1_Buffer[i++ &0x3f];
+                      TING = 1;
+              
+                    }
+                    COM1.RX_Cnt = 0;
+                    i = 0;
+                  }
+              #endif
+  95   2      // use to test soft uart (sRX2sTX, already working!)
+  96   2      #ifdef test_suart2suart
+                  if(REND)
+                  {
+                    REND = 0;
+                    buf[r++ & 0x0f] =RBUF;
+                  }
+                  if(!TING)
+                  {
+                    if(r != t)
+                    {
+                      TBUF = buf[t++ &0x0f];
+                      TING = 1;
+                    }
+                  }
+              #endif
+ 111   2      // use to test hard uart (hRX2hTX,  already working!)
+ 112   2      #ifdef test_huart2huart
+                  if(COM1.RX_TimeOut != 0)
+                  {
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 3   
+
+                    if(--COM1.RX_TimeOut == 0)
+                    {
+                      if(COM1.RX_Cnt != 0)
+                      {
+                        for(i=0;i<=COM1.RX_Cnt;i++) {TX1_write2buff(RX1_Buffer[i]);  delay_ms(5);}//ÐèÒª¼ÓÑÓ³Ù£¬²»ÑÓ³ÙÈÝÒ×»á³
+             -öÏÖ¶ª°ü»òÕßÖÐ¼ä³öÏÖ¿Õ¸ñÒÔµ¼ÖÂ×Ö·û´®·¢ËÍ²»Íê
+                      }
+                      COM1.RX_Cnt = 0;
+                    }
+                  }
+              #endif
+ 125   2      // use to test opensocket and closesocket command(open socket and send string("abcdef"), and then, close s
+             -ocket)    
+ 126   2      #ifdef test_Hlevel
+ 127   2          SendCommand(opensocket,&exSo1);     //establish socket
+ 128   2          delay_ms(255);
+ 129   2          SendDat(senddata,"abcdef",6);
+ 130   2          delay_ms(255);
+ 131   2          SendDat(closesocket,0,0);          //close socket
+ 132   2          delay_100ms(HandShakeT);           // hand shake cycle
+ 133   2      #endif
+ 134   2      // use to test portocol(without dealing check wrong,just send proper data and command)  
+ 135   2      #ifdef test_HighLevelProt
+                  SendCommand(opensocket,&exSo1);     //½¨Á¢socketÁ´½Ó
+                  delay_ms(5);
+                  
+                  length = 10 + 11;                   //ÐÞ¸ÄÃüÁî³¤¶È
+                  senddata.length[0]=length;
+                  senddata.length[1]=length>>8;
+                  checks=calc_sum(&senddata,6);
+                  senddata.checksum[1]=checks;
+                  senddata.checksum[0]=checks>>8;
+                  Hcom_sendmacid[10]= Hcalc_sum(Hcom_sendmacid,10);
+                  SendDat(senddata,Hcom_sendmacid,11);   //·¢ËÍmacºÍÉè±¸id
+                  delay_ms(5);
+                  
+                  if(state==0)
+                  {
+                    length = 10 + 3;
+                    senddata.length[0]=length;
+                    senddata.length[1]=length>>8;
+                    checks=calc_sum(&senddata,6);
+                    senddata.checksum[1]=checks;
+                    senddata.checksum[0]=checks>>8;
+                    SendDat(senddata,Hcom_send_req_domain,3);   //ÇëÇóÓòÃû¡°http://www.baidu.com:1234¡±   ÔÝÇÒÓÃipÀ´´úÌæ
+                    delay_ms(5);
+                    
+                    SendDat(senddata,Hcom_send_req_handshak,3);  //ÇëÇó¶ÁÈ¡ÎÕÊÖÖÜÆÚ
+                    delay_ms(5);
+                    SendDat(senddata,Hcom_send_req_datthre,3);   //ÇëÇó¶ÁÈ¡ÓÃ»§¸ººÉÖµ
+                    delay_ms(5);
+                    state=1;
+                    
+                  }
+                  else
+                  {
+                    length = 10 + 7;
+                    senddata.length[0]=length;                     //ÒòÎªÊý¾Ý²¿·ÖµÄ³¤¶È¸Ä±ä£¬ËùÒÔ±ØÐëÐÞ¸ÄÃüÁîµÄ³¤¶È×Ö½Ú
+                    senddata.length[1]=length>>8;
+                    checks=calc_sum(&senddata,6);                   
+                    senddata.checksum[1]=checks;
+                    senddata.checksum[0]=checks>>8;                //Ã¿´ÎÊý¾Ý²¿·Ö³¤¶È¸Ä±ä£¬¶¼±ØÐëÐÞ¸ÄÐ£ÑéÂë{L²ã}
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 4   
+
+                    Hcom_send_datcurr[6]=Hcalc_sum(Hcom_send_datcurr,6);   //¼ÆËãH²ãÐ£ÑéÂë
+                    SendDat(senddata,Hcom_send_datcurr,7);
+                    delay_ms(5);
+                    
+                  }
+                  SendDat(closesocket,0,0);  //¹Ø±ÕsocketÁ´½Ó
+                  delay_100ms(HandShakeT);  //ÖÜÆÚÐÔÆô¶¯socketÁ´½Ó·þÎñÆ÷
+                    
+              
+              #endif
+ 185   2      
+ 186   2      // use to test receive data
+ 187   2      //#ifdef HleveRectest
+ 188   2      //    SendCommand(opensocket,&exSo1);     //½¨Á¢socketÁ´½Ó
+ 189   2      //    delay_ms(255);
+ 190   2      //    if(COM1.RX_Cnt != i)
+ 191   2      //    {
+ 192   2      //      ReceiveData(Rec,length);
+ 193   2      //      PutString(1,1,Rec);
+ 194   2      //    }
+ 195   2      //    SendDat(closesocket,0,0); //¹Ø±ÕsocketÁ´½Ó
+ 196   2      //    delay_100ms(HandShakeT);  //ÖÜÆÚÐÔÆô¶¯socketÁ´½Ó·þÎñÆ÷
+ 197   2      //#endif
+ 198   2      
+ 199   2          }
+ 200   1      
+ 201   1      
+ 202   1      
+ 203   1      }
+ 204          
+ 205          //use to send command(there just opensocket to establish socket)
+ 206          void SendCommand(Comm puts,Socket *p)
+ 207          {
+ 208   1      
+ 209   1            u16 checks=0;
+ 210   1            u8 i=0;
+ 211   1      ////      u8 *ptemp = p;
+ 212   1      //      u16 len=0;
+ 213   1            TX1_write2buff(puts.command[0]);
+ 214   1            delay_ms(5);
+ 215   1            TX1_write2buff(puts.command[1]);
+ 216   1            delay_ms(5);
+ 217   1            TX1_write2buff(puts.length[0]);
+ 218   1            delay_ms(5);
+ 219   1            TX1_write2buff(puts.length[1]);
+ 220   1            delay_ms(5);
+ 221   1            TX1_write2buff(puts.result[0]);
+ 222   1            delay_ms(5);
+ 223   1            TX1_write2buff(puts.result[1]);
+ 224   1            delay_ms(5);
+ 225   1            TX1_write2buff(puts.checksum[0]);
+ 226   1            delay_ms(5);
+ 227   1            TX1_write2buff(puts.checksum[1]);
+ 228   1            delay_ms(5);
+ 229   1            checks = calc_sum(p,68);
+ 230   1            TX1_write2buff(p->Pro2);
+ 231   1            delay_ms(5);
+ 232   1            TX1_write2buff(p->Pro1);
+ 233   1            delay_ms(5);
+ 234   1            TX1_write2buff(p->PortH);
+ 235   1            delay_ms(5);
+ 236   1            TX1_write2buff(p->PortL);
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 5   
+
+ 237   1            delay_ms(5);
+ 238   1            while((i)<64) 
+ 239   1            {
+ 240   2              TX1_write2buff(p->SeAdd[i++]);
+ 241   2              delay_ms(5);
+ 242   2            }
+ 243   1            TX1_write2buff( ( checks >> 8 ) & 0xff );
+ 244   1            delay_ms(5);
+ 245   1            TX1_write2buff( checks & 0xff );
+ 246   1            while(COM1.TX_Cnt != 0){;}
+ 247   1      } 
+ 248          
+ 249          //use to send data(include command without data and command with upper protocol)  
+ 250          void SendDat(Comm puts,u8 *p,u8 length)
+ 251          {
+ 252   1        u8 i=0;
+ 253   1        u16 checks;
+ 254   1            TX1_write2buff(puts.command[0]);
+ 255   1            delay_ms(5);
+ 256   1            TX1_write2buff(puts.command[1]);
+ 257   1            delay_ms(5);
+ 258   1            TX1_write2buff(puts.length[0]);
+ 259   1            delay_ms(5);
+ 260   1            TX1_write2buff(puts.length[1]);
+ 261   1            delay_ms(5);
+ 262   1            TX1_write2buff(puts.result[0]);
+ 263   1            delay_ms(5);
+ 264   1            TX1_write2buff(puts.result[1]);
+ 265   1            delay_ms(5);
+ 266   1            TX1_write2buff(puts.checksum[0]);
+ 267   1            delay_ms(5);
+ 268   1            TX1_write2buff(puts.checksum[1]);
+ 269   1            delay_ms(5);
+ 270   1        checks = calc_sum(p,length);
+ 271   1        while((i)<length)
+ 272   1        {
+ 273   2          TX1_write2buff(*(p++));
+ 274   2          i++;
+ 275   2        }
+ 276   1            TX1_write2buff( ( checks >> 8 ) & 0xff );
+ 277   1            delay_ms(5);
+ 278   1            TX1_write2buff( checks & 0xff );
+ 279   1        while(COM1.TX_Cnt != 0){;}
+ 280   1      }
+ 281          // use to calculate check sum(16bit )
+ 282          u16 calc_sum(void *dat,u32 len)
+ 283          {
+ 284   1        u32 cksum=0;
+ 285   1        u16 *p =dat;
+ 286   1        while(len >1)
+ 287   1        {
+ 288   2          cksum += *p++;
+ 289   2          len-=2;
+ 290   2        }
+ 291   1        if(len)
+ 292   1        {
+ 293   2          cksum+=*(u8 *)p;
+ 294   2        }
+ 295   1        cksum = (cksum >>16) +(cksum &0xffff);
+ 296   1        cksum += (cksum >>16);
+ 297   1        return ~cksum;
+ 298   1      }
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 6   
+
+ 299          
+ 300          
+ 301          // use to calculate check sum (8bit)
+ 302          //u8 Hcalc_sum(void *dat,u32 len)
+ 303          //{
+ 304          //  u8 cksum=0;
+ 305          //  u8 *p =dat;
+ 306          //  while(len >0)
+ 307          //  {
+ 308          //    cksum += *p++;
+ 309          //    len--;
+ 310          //  }
+ 311          //  return cksum;
+ 312          //}
+ 313          
+ 314          
+ 315          //u16 ReceiveData(u8 *p,u8 l)
+ 316          //{
+ 317          //    Comm puts;
+ 318          //    u16 len=0;
+ 319          //    u8 *ptemp = p;
+ 320          //    u16 checkreturn;
+ 321          //      puts.command[0] = RX1_Buffer[i++];
+ 322          //      puts.command[1] = RX1_Buffer[i++];
+ 323          //      puts.length[0] = RX1_Buffer[i++];
+ 324          //      puts.length[1] = RX1_Buffer[i++];
+ 325          //      puts.result[0] = RX1_Buffer[i++];
+ 326          //      puts.result[1] = RX1_Buffer[i++];
+ 327          //      puts.checksum[0] = RX1_Buffer[i++];
+ 328          //      puts.checksum[1] = RX1_Buffer[i++];
+ 329          
+ 330          //    if(puts.command[0]==0x07)                    //Ö»¶Ô½ÓÊÕÊý¾ÝÃüÁî½øÐÐ´¦Àí£¬ÆäËûµÄÃüÁî²»½øÐÐ´¦Àí
+ 331          //    {
+ 332          //      len =puts.length[1] << 8 + puts.length[0];
+ 333          //      while(len - 2 > i && i > 7)    //±ß½ç»¹Ðè×ÐÏ¸´¦ÀíÒ»ÏÂ
+ 334          //      {
+ 335          //        *(ptemp++) = RX1_Buffer[i++];
+ 336          //      }
+ 337          //      checkreturn = (RX1_Buffer[i++]<<8)+RX1_Buffer[i];
+ 338          //    }
+ 339          //    l=len-10;
+ 340          //    COM1.RX_Cnt = 0;
+ 341          //    i = 0;
+ 342          //    return  checkreturn;
+ 343          //}
+ 344          
+ 345          /********************* Timer0ÖÐ¶Ïº¯Êý************************/
+ 346          //#ifdef USE_TIMER0
+ 347          //void timer0_int (void) interrupt TIMER0_VECTOR
+ 348          //{
+ 349          //    systick++;
+ 350          //}
+ 351          //#endif
+ 352          
+ 353          /********************* Timer1ÖÐ¶Ïº¯Êý************************/
+ 354          #ifdef USE_TIMER1
               void timer1_int (void) interrupt TIMER1_VECTOR
               {
               
               }
               #endif
 
+C51 COMPILER V9.52.0.0   MAIN                                                              07/25/2014 15:24:15 PAGE 7   
+
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    219    ----
-   CONSTANT SIZE    =     34    ----
-   XDATA SIZE       =   ----    ----
+   CODE SIZE        =    914    ----
+   CONSTANT SIZE    =     47    ----
+   XDATA SIZE       =      1    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =      2       8
-   IDATA SIZE       =   ----    ----
+   DATA SIZE        =      1      53
+   IDATA SIZE       =    129    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 

@@ -20,12 +20,12 @@
 /**************************************************************************/
 
 #define Main_Fosc_KHZ	(MAIN_Fosc / 1000)
-#define USART_BAUDRATE  (115200ul)
+#define USART_BAUDRATE  (19200ul)
 
-////软串口波特率
-//#define BaudRate		19200		//模拟串口波特率
-////timer0重装载
-//#define Timer0_Reload		(65536 - MAIN_Fosc / BaudRate / 3)
+//软串口波特率
+#define BaudRate		19200		//模拟串口波特率
+//timer0重装载
+#define Timer0_Reload		(65536 - MAIN_Fosc / BaudRate / 3)
 /***********************************************************/
 
 

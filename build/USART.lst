@@ -1,4 +1,4 @@
-C51 COMPILER V9.52.0.0   USART                                                             07/13/2014 21:02:14 PAGE 1   
+C51 COMPILER V9.52.0.0   USART                                                             07/25/2014 15:24:15 PAGE 1   
 
 
 C51 COMPILER V9.52.0.0, COMPILATION OF MODULE USART
@@ -62,7 +62,7 @@ line level    source
   52   4              ET1 = 0;  //½ûÖ¹ÖÐ¶Ï
   53   4              TMOD &= ~0x40;  //¶¨Ê±
   54   4              INT_CLKO &= ~0x02;  //²»Êä³öÊ±ÖÓ
-C51 COMPILER V9.52.0.0   USART                                                             07/13/2014 21:02:14 PAGE 2   
+C51 COMPILER V9.52.0.0   USART                                                             07/25/2014 15:24:15 PAGE 2   
 
   55   4              TR1  = 1;
   56   4            }
@@ -126,7 +126,7 @@ line level    source
                     AUXR &= ~(1<<4);  //Timer stop
                     AUXR &= ~(1<<3);  //Timer2 set As Timer
                     AUXR |=  (1<<2);  //Timer2 set as 1T mode
-C51 COMPILER V9.52.0.0   USART                                                             07/13/2014 21:02:14 PAGE 3   
+C51 COMPILER V9.52.0.0   USART                                                             07/25/2014 15:24:15 PAGE 3   
 
                     TH2 = (u8)(j>>8);
                     TL2 = (u8)j;
@@ -177,20 +177,20 @@ line level    source
               #endif
  164          
  165          
- 166          #ifdef USE_USART1
- 167          void PrintString1(u8 *puts)
- 168          {
- 169   1          for (; *puts != 0;  puts++)  TX1_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
- 170   1      }
- 171          #endif
+ 166          //#ifdef USE_USART1
+ 167          //void PrintString1(u8 *puts)
+ 168          //{
+ 169          //    for (; *puts != 0;  puts++)  TX1_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
+ 170          //}
+ 171          //#endif
  172          
- 173          #ifdef USE_USART2
-              void PrintString2(u8 *puts)
-              {
-                  for (; *puts != 0;  puts++)  TX2_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
-              }
-              #endif
-C51 COMPILER V9.52.0.0   USART                                                             07/13/2014 21:02:14 PAGE 4   
+ 173          //#ifdef USE_USART2
+ 174          //void PrintString2(u8 *puts)
+ 175          //{
+ 176          //    for (; *puts != 0;  puts++)  TX2_write2buff(*puts);   //Óöµ½Í£Ö¹·û0½áÊø
+ 177          //}
+ 178          //#endif
+C51 COMPILER V9.52.0.0   USART                                                             07/25/2014 15:24:15 PAGE 4   
 
  179          
  180          /*
@@ -254,7 +254,7 @@ line level    source
                 if(TI2)
                 {
                   CLR_TI2();
-C51 COMPILER V9.52.0.0   USART                                                             07/13/2014 21:02:14 PAGE 5   
+C51 COMPILER V9.52.0.0   USART                                                             07/25/2014 15:24:15 PAGE 5   
 
                   if(COM2.TX_read != COM2.TX_write)
                   {
@@ -272,9 +272,9 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    577    ----
+   CODE SIZE        =    558    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     80    ----
+   XDATA SIZE       =    200    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =      8       7
    IDATA SIZE       =   ----    ----
